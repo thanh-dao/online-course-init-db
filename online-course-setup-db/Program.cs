@@ -6,19 +6,35 @@ Console.WriteLine(1);
 CourseOnlineContext context = new CourseOnlineContext();
 HttpClient request = new HttpClient();
 int[] slots = { 15, 20, 30 };
-var categories = new String[9]
+var categories = new String[10]
 {
     "java",
     "javascript",
-    "go",
+    "golang",
     "rust",
     "dart",
     "python",
     "flutter",
     "c#",
-    "c++"
+    "c++",
+    "c",
 };
-
+if (!context.Categories.Any())
+{
+    context.AddRange(new List<Category>() { 
+        new Category("java"), 
+        new Category("javascript"), 
+        new Category("golang"), 
+        new Category("rust"), 
+        new Category("dart"), 
+        new Category("python"), 
+        new Category("flutter"), 
+        new Category("c#"), 
+        new Category("c++"), 
+        new Category("c"), 
+    });
+    context.SaveChanges();
+}
 if (!context.Courses.Any())
 {
     List<Course> Courses = new List<Course>();
@@ -26,8 +42,23 @@ if (!context.Courses.Any())
     {
         string json = r.ReadToEnd();
         Courses = JsonConvert.DeserializeObject<List<Course>>(json);
-
-        context.Courses.AddRangeAsync(Courses);
+        Courses.ForEach(c =>
+        {
+            List<Category> tmpCateList = new List<Category>();
+            Console.WriteLine(c.CourseName);
+            c.Categories.ToList().ForEach(courseCate =>
+            {
+                var _tmp = context.Categories.FirstOrDefault(c => c.CategoryName.Trim().ToLower().Equals(courseCate.CategoryName.Trim().ToLower()));
+                
+                Console.WriteLine(_tmp == null);
+                Console.WriteLine(_tmp.CategoryName);
+                tmpCateList.Add(_tmp);
+            });
+            c.Categories = tmpCateList;
+            c.Categories.ToList().ForEach(c => Console.WriteLine(c.CategoryName));
+            context.Courses.Add(c);
+        });
+        
         context.SaveChanges();
     }
     Random random = new Random();
@@ -45,7 +76,7 @@ if (!context.Courses.Any())
 
 if (!context.Users.Any())
 {
-    context.Users.AddRangeAsync(new List<User>()
+    context.Users.AddRange(new List<User>()
     {
         new User("student 1", "thanh092001@hoho.com","thanh", "123456", "0123586904", "student"),
         new User("student 2", "thanhdd1068@gmail.com", "123456", "0123586904", "student"),
@@ -70,7 +101,7 @@ if (!context.Feedbacks.Any())
     {
         string json = r.ReadToEnd();
         feedbacks = JsonConvert.DeserializeObject<List<Feedback>>(json);
-        context.AddRangeAsync(feedbacks);
+        context.AddRange(feedbacks);
 
         context.SaveChanges();
     }

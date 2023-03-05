@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace online_course_setup_db.Models2;
@@ -45,5 +46,9 @@ public partial class Course
 
     public virtual User? Teacher { get; set; }
 
-    public virtual ICollection<Category> Categories { get; } = new List<Category>();
+    public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
+    public override string ToString()
+    {
+        return JsonConvert.SerializeObject(this);
+    }
 }
